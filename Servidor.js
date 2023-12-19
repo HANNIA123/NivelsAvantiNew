@@ -160,7 +160,8 @@ server.get('/api/viaje/:id', async (req, res) => {
                 viaje_hora_llegada: viajeData.viaje_hora_llegada || '',
                 viaje_hora_partida: viajeData.viaje_hora_partida || '',
                 viaje_dia: viajeData.viaje_dia || '',
-                viaje_trayecto: viajeData.viaje_trayecto || ''
+                viaje_trayecto: viajeData.viaje_trayecto || '',
+                viaje_status: viajeData.viaje_status || '',
 
             });
         } else {
@@ -235,7 +236,8 @@ server.get('/api/itinerarioviajes/:id', async (req, res) => {
                     viaje_hora_llegada: data.viaje_hora_llegada || '',
                     viaje_hora_partida: data.viaje_hora_partida || '',
                     viaje_dia: data.viaje_dia || '',
-                    viaje_trayecto:data.viaje_trayecto || ''
+                    viaje_trayecto:data.viaje_trayecto || '',
+                    viaje_status: data.viaje_status || '',
 
 
                 };
@@ -270,6 +272,7 @@ server.get('/api/busquedaviajes/:id', async (req, res) => {
                 horario_destino: horarioData.horario_destino || '',
                 horario_origen: horarioData.horario_origen || '',
                 usu_id: horarioData.usu_id || '',
+                horario_solicitud:  horarioData.horario_solicitud || '',
             };
 console.log(DatosHorario)
             try {
@@ -302,13 +305,14 @@ console.log(DatosHorario)
                             viaje_hora_partida: data.viaje_hora_partida || '',
                             viaje_dia: data.viaje_dia || '',
                             viaje_trayecto: data.viaje_trayecto || '',
+
                             usu_id: data.usu_id || '',
 
                         };
                     });
 
                     // Send the array of JSON objects as a response
-                    console.log(viajesData)
+                    console.log("Prueba del viaje: ", viajesData)
                     res.json(viajesData);
                 } else {
 
@@ -361,6 +365,7 @@ server.get('/api/busquedaparadas/:id', async (req, res) => {
 
             // Send the array of JSON objects as a response
             res.json(paradasData);
+            console.log("Prueba de parasas: ", paradasData)
         } else {
             res.status(404).json({ error: 'No se encontraron paradas para los viajes proporcionados' });
         }
@@ -393,8 +398,10 @@ server.get('/api/horario/:id', async (req, res) => {
                 horario_destino: horarioData.horario_destino || '',
                 horario_origen: horarioData.horario_origen || '',
                 usu_id: horarioData.usu_id || '',
+                horario_solicitud: horarioData.horario_solicitud || '',
 
             });
+            console.log("finalemente")
         } else {
             res.status(404).json({ error: 'El id del viaje no existe' });
         }
@@ -424,6 +431,57 @@ server.post('/api/registrarsolicitud', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error al agregar solicitud a Firestore' });
     }
 });
+
+
+//Buscar solicitudes que coincida con un pasajero, de acuerdo a su id del viaje y que sea "Aceptada"
+//17/12/2023
+
+server.get('/api/consultasolicitudes/:iduser/:idhorario/:status', async (req, res) => {
+    const horarioId = req.params.idhorario;
+    const status = req.params.status;
+    const userId = req.params.iduser;
+
+console.log("Que llega", horarioId, status, userId)
+    try {
+        // Assuming 'viajes' is your collection name
+        const viajesRef = collection(db, 'solicitud');
+        const viajesQuery = query(viajesRef, where('pasajero_id', '==', userId),
+            where('horario_id', '==', horarioId),  where('solicitud_status', '==', status)
+            );
+        const viajesSnapshot = await getDocs(viajesQuery);
+
+
+        if (viajesSnapshot.docs.length > 0) {
+            // Map the documents to an array of JSON objects
+            const viajesData = viajesSnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+
+                    solicitud_id:     doc.id, // Agregar el Id
+                    conductor_id: data.conductor_id || '',
+                    horario_id: data.horario_id || '',
+                    horario_trayecto: data.horario_trayecto || '',
+                    parada_id: data.parada_id || '',
+                    pasajero_id:data.pasajero_id || '',
+                    solicitud_date:data.solicitud_date || '',
+                    solicitud_status:data.solicitud_status || '',
+                    viaje_id:data.viaje_id || '',
+
+                };
+            });
+
+            // Send the array of JSON objects as a response
+            res.json(viajesData);
+        } else {
+            res.status(404).json({ error: 'No se encontraron paradas para el viaje' });
+        }
+    } catch (error) {
+        console.error('Error al obtener documentos desde Firestore:', error);
+        res.status(500).json({ error: 'Error al obtener documentos desde Firestore' });
+    }
+});
+
+
 
 
 
@@ -504,29 +562,6 @@ server.post('/api/usuario', async (req, res) => {
     }
 });
 
-server.get('/api/usuarios', async (req, res) => {
-    const ejemploCollection = collection(db, 'usuario');
-
-
-    try {
-        // Reemplaza 'tu-coleccion' y 'tu-documento-id' con la colección y el ID del documento que deseas consultar.
-        const documentoRef = doc(db, 'usuario', 'hplayasr1700@alumno.ipn.mx');
-
-        const docSnap = await getDoc(documentoRef);
-
-        if (docSnap.exists()) {
-            console.log("Datos del documento:", docSnap.data());
-            res.json({ mensaje: docSnap.data() });
-        } else {
-            console.log("El documento no existe.");
-        }
-    } catch (error) {
-        console.error('Error al obtener documento desde Firestore:', error);
-    }
-
-
-});
-
 
 //Ruta para obtener el itinerario del pasajero
 server.get('/api/itinerarioviajespasajero/:id', async (req, res) => {
@@ -549,6 +584,7 @@ server.get('/api/itinerarioviajespasajero/:id', async (req, res) => {
                     horario_hora: data.horario_hora || '',
                     horario_dia: data.horario_dia || '',
                     horario_trayecto:data.horario_trayecto || '',
+                    horario_solicitud:data.horario_solicitud || '',
 
                 };
             });
@@ -659,8 +695,70 @@ server.put('/api/modificarstatussolicitud/:id/:status', async (req, res) => {
     }
 });
 
+//---------modificar solicitud en el horario del pasajero------
+server.put('/api/modificarsolicitudhorario/:id/:status', async (req, res) => {
+    const horarioId = req.params.id;
+    const nuevoStatus = req.params.status;
 
-//--------------------------------------
+    try {
+        const paradaRef = doc(db, 'horario', horarioId);
+        const paradaDoc = await getDoc(paradaRef);
+
+        if (paradaDoc.exists()) {
+            // Modificar solo el campo status de la parada
+            await updateDoc(paradaRef, { horario_solicitud: nuevoStatus });
+            console.log("Solicitud en horario modificada ")
+            res.json({ message: 'Estado de la solicitud modificado correctamente' });
+        } else {
+            res.status(404).json({ error: 'La parada no existe' });
+        }
+    } catch (error) {
+        console.error('Error al modificar el estado de la solicitud en Firestore:', error);
+        res.status(500).json({ error: 'Error al modificar el estado de la solicitud en Firestore' });
+    }
+});
+
+
+
+
+//---------------Agregados despues de subir al git Hannia-----------------------
+//Obtener los datos de la solicitu de acuerdo con un id de parada
+server.get('/api/solicitudesparada/:id', async (req, res) => {
+    const paradaId = req.params.id;
+
+    try {
+        // Assuming 'viajes' is your collection name
+        const viajesRef = collection(db, 'solicitud');
+        const viajesQuery = query(viajesRef, where('parada_id', '==', paradaId));
+        const viajesSnapshot = await getDocs(viajesQuery);
+
+        if (viajesSnapshot.docs.length > 0) {
+            // Map the documents to an array of JSON objects
+            const viajesData = viajesSnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    solicitud_id:     doc.id, // Agregar el Id
+                    conductor_id: data.conductor_id || '',
+                    horario_id: data.horario_id || '',
+                    horario_trayecto: data.horario_trayecto || '',
+                    parada_id: data.parada_id || '',
+                    pasajero_id:data.pasajero_id || '',
+                    solicitud_date:data.solicitud_date || '',
+                    solicitud_status:data.solicitud_status || '',
+                    viaje_id:data.viaje_id || '',
+                };
+            });
+
+            // Send the array of JSON objects as a response
+            res.json(viajesData);
+        } else {
+            res.status(404).json({ error: 'No se encontraron paradas para el viaje' });
+        }
+    } catch (error) {
+        console.error('Error al obtener documentos desde Firestore:', error);
+        res.status(500).json({ error: 'Error al obtener documentos desde Firestore' });
+    }
+});
 
 
 
@@ -675,7 +773,7 @@ server.put('/api/modificarstatussolicitud/:id/:status', async (req, res) => {
 
 
 
-
+//////////////////
 //Modificar datos
 // Ruta para modificar un usuario
 server.put('/api/usuario/:id', async (req, res) => {
@@ -704,29 +802,45 @@ server.put('/api/usuario/:id', async (req, res) => {
 });
 
 
-// Ruta para eliminar un usuario
-server.delete('/api/usuario/:id', async (req, res) => {
+//--------------------------------------
+//REGISTRAR REPORTES
+server.use(express.json());
+server.post('/api/registrarreporte', async (req, res) => {
     try {
-        const usuarioId = req.params.id;
+        const reporte = req.body; // Asumiendo que la solicitud POST contiene los datos del nuevo usuario
 
-        // Obtén una referencia al documento del usuario en Firestore
-        const usuarioRef = doc(db, 'viaje', usuarioId);
+        // Agrega un viaje a la coleccion "viaje"
+        const reporteCollection = collection(db, 'reporte');
+        const docRef = await addDoc(reporteCollection, reporte);
 
-        // Verifica si el usuario existe
-        const usuarioDoc = await getDoc(usuarioRef);
-        if (!usuarioDoc.exists()) {
-            return res.status(404).json({ error: 'El usuario no existe' });
-        }
+        res.json({ message: 'Reporte agregado correctamente', userId: docRef.id});
 
-        // Elimina el usuario de Firestore
-        await deleteDoc(usuarioRef);
-
-        res.json({ success: true, message: 'Usuario eliminado correctamente', userId: usuarioId });
     } catch (error) {
-        console.error('Error al eliminar usuario en Firestore:', error);
-        res.status(500).json({ success: false, message: 'Error al eliminar usuario en Firestore' });
+        console.error('Error al agregar reporte a Firestore:', error);
+        res.status(500).json({ success: false, message: 'Error al agregar reporte a Firestore' });
     }
 });
+
+
+//REGISTRAR IMPREVISTO
+server.use(express.json());
+server.post('/api/registrarimprevisto', async (req, res) => {
+    try {
+        const imprevisto = req.body; // Asumiendo que la solicitud POST contiene los datos del nuevo usuario
+
+        // Agrega un viaje a la coleccion "viaje"
+        const imprevistoCollection = collection(db, 'imprevisto');
+        const docRef = await addDoc(imprevistoCollection, imprevisto);
+
+        res.json({ message: 'Imprevisto agregado correctamente', userId: docRef.id});
+
+    } catch (error) {
+        console.error('Error al agregar el imprevisto a Firestore:', error);
+        res.status(500).json({ success: false, message: 'Error al agregar el imprevisto a Firestore' });
+    }
+});
+
+
 
 
 
