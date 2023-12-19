@@ -60,7 +60,8 @@ fun RegistrarOrigenConductorMarker(
     dia:String,
     horao:String,
     horad: String,
-    ubicacionMarker:String
+    ubicacionMarker:String,
+    lugares:String
 ) {
     BoxWithConstraints {
         maxh = this.maxHeight
@@ -261,7 +262,9 @@ fun RegistrarOrigenConductorMarker(
             viaje_origen = ubicacion,
             viaje_hora_llegada = horad,
             viaje_destino = destino,
-            viaje_trayecto = "1"
+            viaje_trayecto = "1",
+            viaje_status = "Disponible",
+            viaje_num_lugares = lugares
         )
         GuardarViaje(navController, userid, viajeData)
         ejecutado=true

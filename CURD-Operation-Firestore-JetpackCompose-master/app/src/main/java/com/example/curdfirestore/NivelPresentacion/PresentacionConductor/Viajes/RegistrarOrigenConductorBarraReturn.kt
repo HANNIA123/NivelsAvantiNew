@@ -59,7 +59,8 @@ fun RegistrarOrigenConductorReturn(
     dia:String,
     horao:String,
     horad:String,
-    ubiMarkerRet:String
+    ubiMarkerRet:String,
+    lugares:String
 
 ) {
     BoxWithConstraints {
@@ -325,7 +326,9 @@ else{
             viaje_origen = ubicacion,
             viaje_hora_llegada = horad,
             viaje_destino = destino,
-            viaje_trayecto = "1"
+            viaje_trayecto = "1",
+            viaje_status = "Disponible",
+            viaje_num_lugares = lugares
         )
 
         GuardarViaje(navController, userid, viajeData)

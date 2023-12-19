@@ -59,7 +59,8 @@ fun RegistrarOrigenConductor(
     userid:String,
     dia:String,
     horao:String,
-    horad:String
+    horad:String,
+    lugares:String
 ) {
     BoxWithConstraints {
         maxh = this.maxHeight
@@ -267,7 +268,9 @@ fun RegistrarOrigenConductor(
             viaje_origen = ubicacion,
             viaje_hora_llegada = horad,
             viaje_destino = destino,
-            viaje_trayecto = "1"
+            viaje_trayecto = "1",
+            viaje_status = "Disponible",
+            viaje_num_lugares = lugares
         )
 
         GuardarViaje(navController, userid, viajeData)
@@ -286,7 +289,7 @@ fun RegistrarOrigenConductorPreview() {
     var correo="hplayasr1700@alumno.ipn.mx"
     val navController = rememberNavController()
     RegistrarOrigenConductor(navController = navController, correo,
-        dia="Lunes", horao="7:00", horad = "8:00")
+        dia="Lunes", horao="7:00", horad = "8:00", lugares = "2")
 
 }
 

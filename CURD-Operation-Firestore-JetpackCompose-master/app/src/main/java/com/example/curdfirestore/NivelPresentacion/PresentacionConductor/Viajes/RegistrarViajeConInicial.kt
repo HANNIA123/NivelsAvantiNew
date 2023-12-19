@@ -16,8 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.BottomAppBar
@@ -46,6 +49,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.ExperimentalComposeUiApi
 
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.curdfirestore.NivelAplicacion.TituloPantalla
@@ -61,6 +65,14 @@ fun RegistrarViajeCon(
     navController: NavController,
     correo: String
 ) {
+    //Para el numero de lugares
+    var numLugares by remember {
+        mutableStateOf("")
+    }
+    var isNumLugaresValido by remember { mutableStateOf(true) }
+    var nameError by remember { mutableStateOf(false) } // 1 -- Field obligatorio
+    var campovacio by remember { mutableStateOf(false) } // 1 --
+
     var ejecutado by remember { mutableStateOf(false) }
     var u_origen by remember { mutableStateOf("0,0") }
     var u_destino by remember { mutableStateOf("0,0") }
@@ -277,15 +289,32 @@ fun RegistrarViajeCon(
 
                 Spacer(modifier = Modifier.height(16.dp))
 /*Seleccionar horario de partida*/
-                Text(
-                    text = "Hora de partida",
-                    modifier = Modifier
-                        .padding(2.dp)
-                        .align(Alignment.Start),
-                    style = TextStyle(
-                        color = Color.Black, fontSize = 18.sp
+
+                if(tipoTrayecto==0){
+                    Text(
+                        text = "Hora de salida desde UPIITA",
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .align(Alignment.Start),
+                        style = TextStyle(
+                            color = Color.Black, fontSize = 18.sp
+                        )
                     )
-                )
+
+                }
+                else{
+                    Text(
+                        text = "Hora de salida de tu docimicilo",
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .align(Alignment.Start),
+                        style = TextStyle(
+                            color = Color.Black, fontSize = 18.sp
+                        )
+                    )
+
+                }
+
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -417,15 +446,29 @@ fun RegistrarViajeCon(
                 }
                 /*Hora de llegada*/
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Hora de llegada",
-                    modifier = Modifier
-                        .padding(2.dp)
-                        .align(Alignment.Start),
-                    style = TextStyle(
-                        color = Color.Black, fontSize = 18.sp
+                if(tipoTrayecto==0){
+                    Text(
+                        text = "Hora de llegada a tu destino",
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .align(Alignment.Start),
+                        style = TextStyle(
+                            color = Color.Black, fontSize = 18.sp
+                        )
                     )
-                )
+                }
+                else{
+                    Text(
+                        text = "Hora de llegada a UPIITA",
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .align(Alignment.Start),
+                        style = TextStyle(
+                            color = Color.Black, fontSize = 18.sp
+                        )
+                    )
+                }
+
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -560,6 +603,44 @@ fun RegistrarViajeCon(
                 Spacer(modifier = Modifier.height(16.dp))
 
 
+                Text(
+                    text = "Lugares disponibles",
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .align(Alignment.Start),
+                    style = TextStyle(
+                        color = Color.Black, fontSize = 18.sp
+                    )
+                )
+                OutlinedTextField(
+                    value = numLugares,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(textColor = Color(104, 104, 104)),
+                    onValueChange = {
+                        numLugares = it
+                        isNumLugaresValido = true // Restablecer la validez al cambiar el valor
+                    },
+                    isError = !isNumLugaresValido, // Invertir la validez para mostrar el error si es falso
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                        .border(
+                            width = 1.dp, shape = RectangleShape, color = Color.LightGray
+                        ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+
+
+                if(campovacio){
+                    Text(
+                        text = "*Campo inválido",
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .align(Alignment.Start),
+                        style = TextStyle(
+                            color = Color.DarkGray, fontSize = 12.sp
+                        )
+                    )
+                }
+
             }
           //Notones de guardar y cancelar
             Row(
@@ -570,18 +651,47 @@ fun RegistrarViajeCon(
                     modifier=Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(137, 13, 88)),
                     onClick = {
-                        horaO="$horaO:$minutoO"
-                        horaD="$horaD:$minutoD"
+                       // horaO="$horaO:$minutoO"
+                        //horaD="$horaD:$minutoD"
+                        var hO="$horaO:$minutoO"
+                        var hD="$horaD:$minutoD"
 
-                        if (tipoTrayecto==0){ //UPIITA COMO ORIGEN
-                        //El conductor elige el destino-- mapa destino
-                            navController.navigate(route = "registrar_destino_conductor/$correo/$dia/$horaO/$horaD")
-                        }
-                        else{ //UPIITA COMO DESTINO
-                        //El conductor elige el origen -- mapa origen
-                            navController.navigate(route = "registrar_origen_conductor/$correo/$dia/$horaO/$horaD")
+                        // Validar el valor de numLugares al presionar el botón
+                        val soloDigitos = numLugares.filter { it.isDigit() }
+                        isNumLugaresValido = soloDigitos.isNotEmpty() // Verificar si hay al menos un dígito
+
+                        if (isNumLugaresValido) {
+                            var lugar=numLugares.toInt()
+                            if(lugar<10) {
+
+
+                                if (tipoTrayecto == 0) { //UPIITA COMO ORIGEN
+                                    //El conductor elige el destino-- mapa destino
+                                    navController.navigate(route = "registrar_destino_conductor/$correo/$dia/$hO/$hD/$numLugares")
+                                } else { //UPIITA COMO DESTINO
+                                    //El conductor elige el origen -- mapa origen
+                                    navController.navigate(route = "registrar_origen_conductor/$correo/$dia/$hO/$hD/$numLugares")
+
+                                }
+                            }
+                            else{
+                                campovacio=true
+                            }
+                            // Realizar la lógica necesaria si el número es válido
+                            // ...
+
+                        } else {
+                            campovacio=true
+                            // Manejar el caso de error, por ejemplo, mostrar un mensaje
+                            // ...
 
                         }
+
+
+
+
+
+
                                    }) {
                     Text(
                         text = "Siguiente", style = TextStyle(

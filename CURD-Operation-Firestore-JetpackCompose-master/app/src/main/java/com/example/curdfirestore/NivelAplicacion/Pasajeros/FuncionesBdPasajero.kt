@@ -12,11 +12,10 @@ import com.example.curdfirestore.NivelAplicacion.ApiService
 import com.example.curdfirestore.NivelAplicacion.BASE_URL
 import com.example.curdfirestore.NivelAplicacion.RespuestaApi
 import com.example.curdfirestore.NivelAplicacion.RetrofitClient
-import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Horarios.F_VerItinerarioPasajero
 import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Solicitudes.F_VerParadasPasajero
 import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Solicitudes.VentanaLejos
 import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Solicitudes.VentanaNoFound
-import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Solicitudes.VentanaSolicitudEnviada
+
 import com.example.curdfirestore.NivelAplicacion.convertirStringALatLng
 
 import com.example.curdfirestore.NivelAplicacion.HorarioData
@@ -25,6 +24,11 @@ import com.example.curdfirestore.NivelAplicacion.ParadaData
 import com.example.curdfirestore.NivelAplicacion.SolicitudData
 import com.example.curdfirestore.NivelAplicacion.ViajeDataReturn
 import com.example.curdfirestore.NivelAplicacion.getDistance
+import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.Solicitudes.VentanaSolicitudAceptada
+import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.Solicitudes.VentanaSolicitudRechazada
+import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Horarios.F_VerItinerarioPasajeroCon
+import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Horarios.F_VerItinerarioPasajeroPen
+import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Horarios.F_VerItinerarioPasajeroSinSoli
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -134,6 +138,7 @@ fun ObtenerHorario(
     var horario by remember { mutableStateOf<HorarioData?>(null) }
     var text by remember { mutableStateOf("") }
     var validar by remember { mutableStateOf(false) }
+    var validarcontenido by remember { mutableStateOf(false) }
 
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
@@ -230,7 +235,7 @@ fun ObtenerHorario(
                             par_id = parada.par_id
                         )
 
-
+                    validarcontenido=true
                     listaActual.add(nuevaP)
 
 
@@ -254,7 +259,8 @@ fun ObtenerHorario(
         }
 
         if(validar==true) {
-            if (listaActual != null) {
+
+            if (listaActual != null && validarcontenido==true) {
                 F_VerParadasPasajero(
                     navController = navController,
                     correo = correo,
@@ -310,6 +316,7 @@ fun GuardarHorario(
 fun ObtenerItinerarioPasajero(
     navController: NavController,
     userId: String,
+    tipo:String
 
     ) {
     var text by remember { mutableStateOf("") }
@@ -331,7 +338,17 @@ fun ObtenerItinerarioPasajero(
     }
     // Construir la interfaz de usuario utilizando el estado actualizado
     if (viajes != null ) {
-        F_VerItinerarioPasajero(navController,userId, viajes!!) //Pantalla de home
+        if(tipo=="p"){ //Pendientes
+            F_VerItinerarioPasajeroPen(navController,userId, viajes!!) //Pantalla de home
+        }
+        else if(tipo=="c"){ //Confirmados
+            F_VerItinerarioPasajeroCon(navController,userId, viajes!!) //Pantalla de home
+        }
+        else{
+            F_VerItinerarioPasajeroSinSoli(navController,userId, viajes!!)
+        }
+
+
     }
 
 }
@@ -342,9 +359,11 @@ fun ObtenerItinerarioPasajero(
 fun GuardarSolicitud(
     navController: NavController,
     correo: String,
-    solicitudData: SolicitudData
+    solicitudData: SolicitudData,
+    idHorario:String
 ) {
     var show by rememberSaveable { mutableStateOf(false) }
+    var controlador by remember { mutableStateOf(false) }
     var resp by remember { mutableStateOf("") }
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
@@ -355,10 +374,12 @@ fun GuardarSolicitud(
         override fun onResponse(call: Call<RespuestaApi>, response: Response<RespuestaApi>) {
             if (response.isSuccessful) {
                 val respuesta = response.body()?.message ?: "Mensaje nulo"
-                val idHorario = response.body()?.userId.toString()
-                resp = respuesta
-                navController.navigate(route = "ver_itinerario_pasajero/$correo")
+                //val idHorario = response.body()?.userId.toString()
+                    resp = respuesta
                 show=true
+               // navController.navigate(route = "ver_itinerario_pasajero/$correo")
+
+                controlador=true
 
 
             } else {
@@ -370,12 +391,92 @@ fun GuardarSolicitud(
         }
     }
     )
-    if(show) {
-        VentanaSolicitudEnviada(
-            navController,
-            correo,
-            show,
-            { show = false },
-            {})
+
+}
+
+//Modificar que un horario tiene una solicitud
+@Composable
+fun RegistraSolicitudHorario(
+    navController: NavController,
+    userId: String,
+    horarioId: String,
+    status:String
+
+) {
+    println("Modifica horarioooo")
+    var show by rememberSaveable { mutableStateOf(false) }
+
+    var text by remember { mutableStateOf("") }
+    var confirm by remember { mutableStateOf(false) }
+    var show1 by remember { mutableStateOf(false) }
+    var show2 by remember { mutableStateOf(false) }
+    val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val apiService = retrofit.create(ApiService::class.java)
+    //Obtener lista de viajes (Itinerario)
+
+
+    val call = apiService.modificarStatusSoliHorario(horarioId, status)
+    call.enqueue(object : Callback<RespuestaApi> {
+        override fun onResponse(call: Call<RespuestaApi>, response: Response<RespuestaApi>) {
+            if (response.isSuccessful) {
+                // La modificación fue exitosa
+                val respuestaApi = response.body()
+           //     navController.navigate(route = "ver_itinerario_pasajero/$userId")
+
+
+                println("Se modificaaa")
+
+            } else {
+                // Ocurrió un error, manejar según sea necesario
+                // Puedes obtener más información del error desde response.errorBody()
+            }
+        }
+
+        override fun onFailure(call: Call<RespuestaApi>, t: Throwable) {
+            // Manejar errores de red o excepciones
+            t.printStackTrace()
+        }
+    })
+
+
+}
+//Obtener las solicitudes que ha enviado el pasajero, de acuerdo a su estado
+
+
+@Composable
+fun ObtenerSolicitudesFilPasajero(
+    navController: NavController,
+    userId: String,
+    horarioId: String,
+    statusSol:String
+
+
+) {
+    var text by remember { mutableStateOf("") }
+    val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val apiService = retrofit.create(ApiService::class.java)
+    //Obtener lista de viajes (Itinerario)
+    var solicitudes by remember { mutableStateOf<List<SolicitudData>?>(null) }
+    LaunchedEffect(key1 = true) {
+        try {
+            val resultadoViajes = RetrofitClient.apiService.obtenerItiSolicitudesPas(userId,horarioId,statusSol)
+            solicitudes = resultadoViajes
+        } catch (e: Exception) {
+            text = "Error al obtener Itinerario: $e"
+            println("Error al obtener Itinerario: $e")
+        }
     }
+    // Construir la interfaz de usuario utilizando el estado actualizado
+    if (solicitudes != null ) {
+
+
+
+    }
+
 }

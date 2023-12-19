@@ -30,6 +30,9 @@ data class ViajeData(
     var viaje_hora_partida: String="",
     var viaje_hora_llegada: String="",
     var viaje_trayecto:String="",
+    var viaje_num_lugares:String="",
+    var viaje_status:String="",
+
     )
 
 data class ViajeDataReturn(
@@ -41,6 +44,8 @@ data class ViajeDataReturn(
     var viaje_hora_partida: String="",
     var viaje_hora_llegada: String="",
     var viaje_trayecto:String="",
+    var viaje_num_lugares:String="",
+    var viaje_status:String="",
 )
 
 
@@ -53,6 +58,7 @@ data class HorarioData(
     var horario_hora: String="",
     var horario_id:String="",
     var horario_trayecto: String="",
+    var horario_solicitud:String=""
 )
 
 data class HorarioDataReturn(
@@ -63,8 +69,9 @@ data class HorarioDataReturn(
     var horario_hora: String="",
     var horario_id:String="",
     var horario_trayecto: String="",
-
+    var horario_solicitud:String=""
 )
+
 data class SolicitudData(
     var viaje_id: String="",
     var horario_id: String="",
@@ -94,15 +101,25 @@ data class MarkerItiData(
     var marker_ubicacion: LatLng,
     var marker_titulo: String="",
     var marker_hora: String="",
+    var marker_id:String="" //id de la parada o el viaje
 )
 
-data class NotificationData(
-    var not_tipo: String="",
-    var not_fecha: String="",
-    //Solicitud Recibidad
+//AGREGADO 17/12/2024
+data class ReporteData(
+    var conductor_id: String="",
+    var pasajero_id: String="",
+    var repor_motivo: String="",
+    var repor_detalles: String ="",
+    var repor_fecha: String="",
+)
 
-    var not_id_parada: String="",
-    var not_usu_envia: String="",
-    var not_usu_recibe: String="",
-    var not_id_doc: String=""
-    )
+
+//AGREGADO 17/12/2024
+data class ImprevistoData(
+    var conductor_id: String="",
+    var pasajero_id: String="",
+    var viaje_id: String="",
+    var imprev_motivo: String="",
+    var imprev_detalles: String ="",
+    var imprev_fecha:String="",
+)

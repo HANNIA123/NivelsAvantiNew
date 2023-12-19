@@ -310,7 +310,7 @@ fun RegistrarParadaBarraPreview() {
     var correo="hplayasr1700@alumno.ipn.mx"
     val navController = rememberNavController()
     RegistrarOrigenConductor(navController = navController, correo,
-        dia="Lunes", horao="7:00", horad = "8:00")
+        dia="Lunes", horao="7:00", horad = "8:00", lugares = "2")
 
 }
 

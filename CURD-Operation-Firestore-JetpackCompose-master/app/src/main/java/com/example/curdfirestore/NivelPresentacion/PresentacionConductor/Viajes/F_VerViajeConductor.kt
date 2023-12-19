@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.curdfirestore.NivelAplicacion.MarkerItiData
 import com.example.curdfirestore.NivelAplicacion.TextoMarker
+import com.example.curdfirestore.NivelAplicacion.ViajeDataReturn
 import com.example.curdfirestore.NivelAplicacion.convertirStringALatLng
 import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.VentanaMarkerItinerario
 import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.maxh
@@ -65,7 +66,8 @@ fun F_VerViajeConductor(
     correo: String,
     viajeData: ViajeData,
     paradas: List<ParadaData>,
-    pantalla:String
+    pantalla:String,
+    viajeId:String
 
 ) {
 //Agregados
@@ -137,7 +139,8 @@ fun F_VerViajeConductor(
                 val nOrigen=MarkerItiData(
                     marker_ubicacion = origen,
                     marker_hora = viajeData.viaje_hora_partida,
-                    marker_titulo = "Origen"
+                    marker_titulo = "Origen",
+                    marker_id = viajeId
                 )
 
                 listaActual.add(nOrigen)
@@ -146,7 +149,8 @@ fun F_VerViajeConductor(
                 val nDestino=MarkerItiData(
                     marker_ubicacion = destino,
                     marker_hora = viajeData.viaje_hora_llegada,
-                    marker_titulo = "Destino"
+                    marker_titulo = "Destino",
+                    marker_id = viajeId
                 )
 
                 listaActual.add(nDestino)
@@ -192,7 +196,8 @@ fun F_VerViajeConductor(
                     val nParada=MarkerItiData(
                         marker_ubicacion = ubiParada,
                         marker_hora = parada.par_hora,
-                        marker_titulo = parada.par_nombre
+                        marker_titulo = parada.par_nombre,
+                        marker_id = parada.par_id
                     )
 
                     listaActual.add(nParada)
@@ -385,6 +390,6 @@ fun MyComposablePreviewVerViaje() {
         ParadaData(/* provide constructor arguments here if needed */),
 
     )
-    F_VerViajeConductor(navController = navController, correo = correo, viajeData = viajeData, listaDeViajes, pantalla = "itinerario")
+    F_VerViajeConductor(navController = navController, correo = correo, viajeData = viajeData, listaDeViajes, pantalla = "itinerario", viajeId = "123")
 }
 

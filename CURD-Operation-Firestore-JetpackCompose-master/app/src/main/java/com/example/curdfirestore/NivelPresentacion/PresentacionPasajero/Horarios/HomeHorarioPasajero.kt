@@ -1,4 +1,4 @@
-package com.example.curdfirestore.NivelPresentacion.PresentacionConductor
+package com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Horarios
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -14,9 +14,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,25 +28,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.curdfirestore.NivelAplicacion.TituloPantalla
-import com.example.curdfirestore.NivelAplicacion.pruebaMenu
-import com.example.curdfirestore.R
-import com.example.curdfirestore.NivelAplicacion.ParadaData
-import com.example.curdfirestore.NivelAplicacion.ViajeData
+import com.example.curdfirestore.NivelAplicacion.pruebaMenuPasajero
 import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.Viajes.mh
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeViajeConductor(
+fun HomeHorarioPasajero(
     navController: NavController,
     correo: String
 
@@ -56,7 +52,7 @@ fun HomeViajeConductor(
     Scaffold(
         bottomBar = {
             BottomAppBar(modifier = Modifier.height(45.dp)) {
-                pruebaMenu(navController, correo)
+                pruebaMenuPasajero(navController, correo)
             }
         }
     ) {
@@ -68,7 +64,7 @@ fun HomeViajeConductor(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            TituloPantalla(Titulo = "Viaje", navController,)
+            TituloPantalla(Titulo = "Viajes", navController,)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -87,17 +83,17 @@ fun HomeViajeConductor(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
 
-                        navController.navigate(route = "registrar_viaje_conductor/$correo")
+                        navController.navigate(route = "ver_itinerario_pasajero_con/$correo")
                     }) {
                     Icon(
-                        imageVector = Icons.Filled.Edit,
+                        imageVector = Icons.Filled.CheckCircle,
                         contentDescription = null,
                         modifier = Modifier
                             .size(50.dp),
                         tint = Color(137, 13, 88),
                     )
                     Text(
-                        text = "Registrar viaje",
+                        text = "Viajes confirmados",
                         textAlign = TextAlign.Left,
                         modifier = Modifier.fillMaxWidth().padding(start = 30.dp),
                         style = TextStyle(
@@ -117,98 +113,7 @@ fun HomeViajeConductor(
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        navController.navigate(route = "ver_itinerario_conductor/$correo")
-
-                    }) {
-                    Icon(
-                        imageVector = Icons.Filled.DateRange,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(50.dp),
-                        tint = Color(137, 13, 88),
-                    )
-                    Text(
-                        text = "Visualizar itinerario",
-                        textAlign = TextAlign.Left,
-                        modifier = Modifier.fillMaxWidth().padding(start = 30.dp),
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            color = Color(137, 13, 88),
-
-                            )
-                    )
-                }
-
-                //Agregado 15/12/2023
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(
-                            238, 236, 239
-                        )
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-
-                        navController.navigate(route = "ver_solicitudes_conductor/$correo")
-                    }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.solicitud),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(50.dp),
-                        tint = Color(137, 13, 88),
-                    )
-                    Text(
-                        text = "Solicitudes",
-                        textAlign = TextAlign.Left,
-                        modifier = Modifier.fillMaxWidth().padding(start = 30.dp),
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            color = Color(137, 13, 88),
-
-                            )
-                    )
-                }
-
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(
-                            238, 236, 239
-                        )
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-
-                        navController.navigate(route = "ver_pasajeros_conductor/$correo")
-                    }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.users),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(50.dp),
-                        tint = Color(137, 13, 88),
-                    )
-                    Text(
-                        text = "Pasajeros",
-                        textAlign = TextAlign.Left,
-                        modifier = Modifier.fillMaxWidth().padding(start = 30.dp),
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            color = Color(137, 13, 88),
-
-                            )
-                    )
-                }
-
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(
-                            238, 236, 239
-                        )
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-
+                        navController.navigate(route = "ver_itinerario_pasajero_pen/$correo")
 
                     }) {
                     Icon(
@@ -219,7 +124,37 @@ fun HomeViajeConductor(
                         tint = Color(137, 13, 88),
                     )
                     Text(
-                        text = "Cancelar viaje",
+                        text = "Solicitudes pendientes",
+                        textAlign = TextAlign.Left,
+                        modifier = Modifier.fillMaxWidth().padding(start = 30.dp),
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            color = Color(137, 13, 88),
+
+                            )
+                    )
+                }
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color(
+                            238, 236, 239
+                        )
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        navController.navigate(route = "ver_itinerario_pasajero_sin/$correo")
+
+
+                    }) {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(50.dp),
+                        tint = Color(137, 13, 88),
+                    )
+                    Text(
+                        text = "Sin solicitudes",
                         textAlign = TextAlign.Left,
                         modifier = Modifier.fillMaxWidth().padding(start = 30.dp),
                         style = TextStyle(
@@ -230,33 +165,12 @@ fun HomeViajeConductor(
                     )
                 }
 
+
+
             }
         }
     }
 }
-
-
-@Preview(showBackground = true)
-@Composable
-fun MyComposablePreviewHomeViaje() {
-    // Esta función se utiliza para la vista previa
-    var correo = "hplayasr1700@alumno.ipn.mx"
-    val navController = rememberNavController()
-
-    val viajeData: ViajeData = ViajeData(/* provide constructor arguments here if needed */)
-    val listaDeViajes: List<ParadaData> = listOf(
-        ParadaData(/* provide constructor arguments here if needed */),
-
-        )
-    HomeViajeConductor(navController = navController, correo = correo)
-}
-
-
-
-
-
-
-
 
 
 

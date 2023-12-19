@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,11 +43,15 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.curdfirestore.NivelAplicacion.TextoMarker
 import com.example.curdfirestore.NivelAplicacion.convertCoordinatesToAddress
 import com.example.curdfirestore.NivelAplicacion.convertirStringALatLng
 import com.example.curdfirestore.NivelAplicacion.HorarioData
+import com.example.curdfirestore.NivelAplicacion.MarkerItiData
 import com.example.curdfirestore.NivelAplicacion.ViajeDataReturn
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -56,6 +61,10 @@ import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.Viajes.
 
 var maxh = 0.dp
 
+/*Este es el mapa donde se muestran las paradas cercanas de acuerdo al
+* horario filtrado del pasajero, el marker abre una ventana (VentanaSolicitudesPasa)
+
+* */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,10 +81,25 @@ fun F_VerParadasPasajero(
     }
     println("LLegaa---- $paradas")
     //Convertir String a coordenadas  -- origen
+    var previa by rememberSaveable { mutableStateOf(true) }
+
+
+    if (previa) {
+        VentanaPreviaParadas(
+            previa,
+            { previa = false },
+            {})
+
+
+    }
+
+
 
     var markerLatO by remember { mutableStateOf(0.0) }
     var markerLonO by remember { mutableStateOf(0.0) }
     var infparadas by remember { mutableStateOf<ParadaData?>(null) }
+
+
 
     val markerCoordenadasLatLngO = convertirStringALatLng(horario.horario_origen)
 
@@ -167,12 +191,34 @@ fun F_VerParadasPasajero(
             var show by rememberSaveable { mutableStateOf(false) }
             var markerLat by remember { mutableStateOf(0.0) }
             var markerLon by remember { mutableStateOf(0.0) }
+
+var newParadas=paradas
+            if (horario.horario_trayecto=="0"){
+                val nParada= ParadaData(
+                    par_ubicacion = horario.horario_destino,
+                    par_nombre = "Destino",
+                    par_hora = horario.horario_hora
+                )
+                newParadas=newParadas+nParada
+            }
+            if (horario.horario_trayecto=="1"){
+                val nParada= ParadaData(
+                    par_ubicacion = horario.horario_origen,
+                    par_nombre = "Origen",
+                    par_hora = horario.horario_hora
+                )
+                newParadas=newParadas+nParada
+            }
+
+
+
+
             val context = LocalContext.current
             MapViewContainer { googleMap: GoogleMap ->
                 // Habilita los controles de zoom
                 // googleMap.uiSettings.isZoomControlsEnabled = true
                 // Agrega los marcadores
-                for (parada in paradas) {
+                for (parada in newParadas) {
                     val markerCoordenadasLatLng = convertirStringALatLng(parada.par_ubicacion)
                     if (markerCoordenadasLatLng != null) {
                         markerLat = markerCoordenadasLatLng.latitude
@@ -182,9 +228,27 @@ fun F_VerParadasPasajero(
                     } else {
                         println("Error al convertir la cadena a LatLng")
                     }
+
+                    var imageName = "paradas"
+                    /*Diferente marker para el origen o detsino y las paradas*/
+
+                    if (parada.par_nombre=="Origen" || parada.par_nombre=="Destino"){
+
+                        imageName="origendestino"
+                    }
+                    else{
+                        imageName="marcador"
+                    }
+                    val image = context.resources.getIdentifier(imageName, "drawable", context.packageName)
+                    val bitmapDescriptor = BitmapDescriptorFactory.fromResource(image)
+
                     val ubiParada = LatLng(markerLat, markerLon)
                     val markerOptions = MarkerOptions().position(ubiParada)
-                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marcador))
+                    markerOptions.icon(bitmapDescriptor)
+
+                    // markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.paradas))
+
+
                     val marker = googleMap.addMarker(markerOptions)
                     paradasPorMarcador[marker!!.id] = parada
 
@@ -212,7 +276,7 @@ fun F_VerParadasPasajero(
                 }
 
                 ultimaUbicacionCamera?.let { ultimaUbicacion ->
-                    val cameraUpdate = CameraUpdateFactory.newLatLngZoom(ultimaUbicacion, 12.0f)
+                    val cameraUpdate = CameraUpdateFactory.newLatLngZoom(ultimaUbicacion, 13.0f)
                     googleMap.animateCamera(cameraUpdate)
                 }
 
@@ -278,7 +342,16 @@ fun F_VerParadasPasajero(
                     ) {
                         val latLng = LatLng(37.7749, -122.4194)
                         var newadress = ""
+                        Text(
+                            text = "Información sobre tu viaje",
+                            modifier = Modifier.padding(2.dp),
+                            style = TextStyle(
+                                Color(137, 13, 88),
+                                fontSize = 18.sp
+                            ),
+                            textAlign = TextAlign.Center
 
+                        )
 
 
                         TextoMarker(Label = "Dia: ", Text = horario.horario_dia)

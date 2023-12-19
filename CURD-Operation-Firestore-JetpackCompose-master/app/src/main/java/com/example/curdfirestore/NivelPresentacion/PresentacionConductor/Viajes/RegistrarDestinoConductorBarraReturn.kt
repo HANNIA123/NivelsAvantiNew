@@ -60,6 +60,7 @@ fun RegistrarDestinoConductorReturn(
     horao:String,
     horad:String,
     ubiMarkerRet:String,
+    lugares:String
 ) {
     BoxWithConstraints {
         maxh = this.maxHeight
@@ -324,7 +325,9 @@ fun RegistrarDestinoConductorReturn(
             viaje_origen = origen,
             viaje_hora_llegada = horad,
             viaje_destino = ubicacion,
-            viaje_trayecto = "0"
+            viaje_trayecto = "0",
+            viaje_status = "Disponible",
+            viaje_num_lugares = lugares
         )
 
         GuardarViaje(navController, userid, viajeData)

@@ -73,9 +73,14 @@ fun F_VerPasajerosCon(
 
 ) {
 
+
+
     var idsol by remember { mutableStateOf("") }
     var aceptar by remember { mutableStateOf(false) }
     var rechazar by remember { mutableStateOf(false) }
+    var NombreUsuario by remember { mutableStateOf<String?>(null) }
+    var PapellidoUsuario: String? by remember { mutableStateOf(null) }
+    var SapellidoUsuario: String? by remember { mutableStateOf(null) }
     BoxWithConstraints {
         maxh = this.maxHeight - 50.dp
     }
@@ -111,153 +116,103 @@ fun F_VerPasajerosCon(
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-
-                                //Obtener nombre del pasajero
-                                var usuario by remember { mutableStateOf<UserData?>(null) }
-                                var text by remember { mutableStateOf("") }
-                                val retrofit = Retrofit.Builder()
-                                    .baseUrl(BASE_URL)
-                                    .addConverterFactory(GsonConverterFactory.create())
-                                    .build()
-                                val apiService = retrofit.create(ApiService::class.java)
-                                LaunchedEffect(key1 = true) {
-                                    try {
-                                        val resultadoUsuario =
-                                            RetrofitClient.apiService.pasarUsuario(solicitud.pasajero_id)
-                                        usuario = resultadoUsuario
-                                        // Haz algo con el objeto Usuario
-                                        println("Usuario obtenido: $usuario")
-                                    } catch (e: Exception) {
-                                        text = "Error al obtener usuario: $e"
-                                        println("Error al obtener usuario: $e")
-                                    }
+                            //Obtener nombre del pasajero
+                            var usuario by remember { mutableStateOf<UserData?>(null) }
+                            var text by remember { mutableStateOf("") }
+                            val retrofit = Retrofit.Builder()
+                                .baseUrl(BASE_URL)
+                                .addConverterFactory(GsonConverterFactory.create())
+                                .build()
+                            val apiService = retrofit.create(ApiService::class.java)
+                            LaunchedEffect(key1 = true) {
+                                try {
+                                    val resultadoUsuario =
+                                        RetrofitClient.apiService.pasarUsuario(solicitud.pasajero_id)
+                                    usuario = resultadoUsuario
+                                    // Haz algo con el objeto Usuario
+                                    println("Usuario obtenido: $usuario")
+                                } catch (e: Exception) {
+                                    text = "Error al obtener usuario: $e"
+                                    println("Error al obtener usuario: $e")
                                 }
-                                //Obtener informacion de la parada
-                                //Obtener nombre del pasajero
-                                var parada by remember { mutableStateOf<ParadaData?>(null) }
-                                var text2 by remember { mutableStateOf("") }
-                                val retrofit2 = Retrofit.Builder()
-                                    .baseUrl(BASE_URL)
-                                    .addConverterFactory(GsonConverterFactory.create())
-                                    .build()
-                                val apiService2 = retrofit2.create(ApiService::class.java)
-                                LaunchedEffect(key1 = true) {
-                                    try {
-                                        val resultadoParada =
-                                            RetrofitClient.apiService.obtenerParada(solicitud.parada_id)
-                                        parada = resultadoParada
-                                        // Haz algo con el objeto Usuario
-                                        println("Parada obtenido: $usuario")
-                                    } catch (e: Exception) {
-                                        text = "Error al obtener usuario: $e"
-                                        println("Error al obtener usuario: $e")
-                                    }
-                                }
-                                if (usuario != null) {
-                                    Row(
-                                        modifier=Modifier.padding(5.dp)
-                                    ) {
-                                        CoilImage(
-                                            url = usuario!!.usu_foto, modifier = Modifier
-                                                .size(85.dp)
-                                                .clip(CircleShape)
-                                        )
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center,
-                                            modifier = Modifier.padding(10.dp, 15.dp,10.dp,15.dp)){
-                                            Text(
-                                                buildAnnotatedString {
-                                                    withStyle(
-                                                        style = SpanStyle(
-
-                                                            fontSize = 15.sp
-                                                        )
-                                                    ) {
-                                                        append("${usuario!!.usu_nombre}+ ${usuario!!.usu_primer_apellido} + ${usuario!!.usu_segundo_apellido}")
-                                                    }
+                            }
 
 
+                            /*if (usuario != null &&
+                                usuario!!.usu_nombre != NombreUsuario &&
+                                usuario!!.usu_primer_apellido != PapellidoUsuario &&
+                                usuario!!.usu_segundo_apellido != SapellidoUsuario) {
+
+                            */
+                                if(usuario!=null){
+
+                                Row(
+                                    modifier=Modifier.padding(5.dp)
+                                ) {
+                                    CoilImage(
+                                        url = usuario!!.usu_foto, modifier = Modifier
+                                            .size(85.dp)
+                                            .clip(CircleShape)
+                                    )
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                        modifier = Modifier.padding(10.dp, 15.dp,10.dp,15.dp)){
+
+                                        Text(
+                                            buildAnnotatedString {
+                                                withStyle(
+                                                    style = SpanStyle(
+
+                                                        fontSize = 15.sp
+                                                    )
+                                                ) {
+                                                    append("${usuario!!.usu_nombre} ${usuario!!.usu_primer_apellido} ${usuario!!.usu_segundo_apellido}")
                                                 }
-                                            )
+
+
+                                            }
+                                        )
+
+                                        TextButton(
+                                            onClick = {
+                                                navController.navigate("reportar_pasajero/${solicitud.pasajero_id}/$userId")
+                                            },
+                                            modifier = Modifier
+                                                .background(color = Color.White)
+                                        ) {
+                                            Row {
+                                                Icon(
+                                                    imageVector = Icons.Filled.Warning,
+                                                    contentDescription = "Reportar"
+                                                )
+                                                Spacer(modifier = Modifier.width(4.dp)) // Agrega espacio entre el icono y el texto
+                                                Text(
+                                                    text = "Reportar",
+                                                    style = TextStyle(
+                                                        fontSize = 16.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = Color(104, 104, 104),
+                                                    )
+                                                )
+                                            }
                                         }
 
                                     }
+
                                 }
+                                NombreUsuario = usuario!!.usu_nombre
+                                PapellidoUsuario = usuario!!.usu_primer_apellido
+                                SapellidoUsuario = usuario!!.usu_segundo_apellido
 
-
-
+                                LineaGris()
+                                }
 
                             }
 
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .fillMaxWidth()
-                            ) {
-
-
-
-                                TextButton(
-                                    onClick = {
-                                        aceptar = true
-                                        idsol = solicitud.solicitud_id
-                                    },
-                                    modifier = Modifier
-                                        .background(color = Color.White) // Puedes personalizar el fondo si lo deseas
-                                ) {
-                                    Row {
-                                        Icon(
-                                            imageVector = Icons.Filled.Delete,
-                                            contentDescription = "Eliminar"
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp)) // Agrega espacio entre el icono y el texto
-                                        Text(
-                                            text = "Eliminar",
-                                            style = TextStyle(
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color(104, 104, 104),
-                                            )
-                                        )
-                                    }
-                                }
-
-                                TextButton(
-                                    onClick = {
-                                        aceptar = true
-                                        idsol = solicitud.solicitud_id
-                                    },
-                                    modifier = Modifier
-                                        .background(color = Color.Gray) // Puedes personalizar el fondo si lo deseas
-                                ) {
-                                    Row {
-                                        Icon(
-                                            imageVector = Icons.Filled.Warning,
-                                            contentDescription = "Reportar"
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp)) // Agrega espacio entre el icono y el texto
-                                        Text(
-                                            text = "Reportar",
-                                            style = TextStyle(
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color(104, 104, 104),
-                                            )
-                                        )
-                                    }
-                                }
-
-                                //---------------------------------------------------
-                            }
-                            LineaGris()
                         }
                         }
-                    } ///------------
-
-
+                    }
                 }
-
 
             }
 

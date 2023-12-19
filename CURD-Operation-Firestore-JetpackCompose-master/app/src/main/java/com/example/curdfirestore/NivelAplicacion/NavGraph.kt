@@ -13,6 +13,8 @@ import com.example.curdfirestore.NivelAplicacion.Pasajeros.ObtenerParadasPasajer
 
 
 import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.HomeViajeConductor
+import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.ReportarImprevisto_Con
+import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.Solicitudes.ReportarPasajeros_Con
 import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.HomeViajePasajero
 
 
@@ -35,6 +37,7 @@ import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Horarios
 import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Horarios.RegistrarViajePas
 import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.Viajes.AgregarParadas
 import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.Viajes.RegistrarViajeCon
+import com.example.curdfirestore.NivelPresentacion.PresentacionPasajero.Horarios.HomeHorarioPasajero
 
 
 @Composable
@@ -120,11 +123,12 @@ fun NavGraph(
             )
         }
         /*Pantalla que manda al mapa para registrar el punto de origen*/
-        composable( "registrar_origen_conductor/{userid}/{dia}/{horao}/{horad}"){
+        composable( "registrar_origen_conductor/{userid}/{dia}/{horao}/{horad}/{numlugares}"){
             val userID= it.arguments?.getString("userid")?:""
             val dia=it.arguments?.getString("dia")?:""
             val horao=it.arguments?.getString("horao")?:""
             val horad=it.arguments?.getString("horad")?:""
+            val lugares=it.arguments?.getString("numlugares")?:""
 
 //Registrar origen conductor barra
             RegistrarOrigenConductor (
@@ -132,16 +136,19 @@ fun NavGraph(
                 userID,
                 dia,
                 horao,
-                horad
+                horad,
+                lugares
+
             )
         }
 
-        composable( "registrar_origen_conductor_return/{userid}/{dia}/{horao}/{horad}/{umarkerdrag}"){
+        composable( "registrar_origen_conductor_return/{userid}/{dia}/{horao}/{horad}/{umarkerdrag}/{numlugares}"){
             val userID= it.arguments?.getString("userid")?:""
             val dia=it.arguments?.getString("dia")?:""
             val horao=it.arguments?.getString("horao")?:""
             val horad=it.arguments?.getString("horad")?:""
             val ubiMarkerDrag=it.arguments?.getString("umarkerdrag")?:""
+            val lugares=it.arguments?.getString("numlugares")?:""
 //Este es el mapa para el origen
             RegistrarOrigenConductorReturn (
                 navController = navController,
@@ -149,16 +156,18 @@ fun NavGraph(
                 dia,
                 horao,
                 horad,
-                ubiMarkerDrag
+                ubiMarkerDrag,
+                lugares
 
             )
         }
-        composable( "registrar_destino_conductor_return/{userid}/{dia}/{horao}/{horad}/{umarkerdrag}"){
+        composable( "registrar_destino_conductor_return/{userid}/{dia}/{horao}/{horad}/{umarkerdrag}/{numlugares}"){
             val userID= it.arguments?.getString("userid")?:""
             val dia=it.arguments?.getString("dia")?:""
             val horao=it.arguments?.getString("horao")?:""
             val horad=it.arguments?.getString("horad")?:""
             val ubiMarkerDrag=it.arguments?.getString("umarkerdrag")?:""
+            val lugares=it.arguments?.getString("numlugares")?:""
 
 //Este es el mapa para el origen
 
@@ -168,16 +177,18 @@ fun NavGraph(
                 dia,
                 horao,
                 horad,
-                ubiMarkerDrag
+                ubiMarkerDrag,
+                lugares
             )
         }
 
-        composable( "registrar_origen_conductor_marker/{userid}/{dia}/{horao}/{horad}/{umarker}"){
+        composable( "registrar_origen_conductor_marker/{userid}/{dia}/{horao}/{horad}/{umarker}/{numlugares}"){
             val userID= it.arguments?.getString("userid")?:""
             val dia=it.arguments?.getString("dia")?:""
             val horao=it.arguments?.getString("horao")?:""
             val horad=it.arguments?.getString("horad")?:""
             val ubicacionMarker=it.arguments?.getString("umarker")?:""
+            val lugares=it.arguments?.getString("numlugares")?:""
 //Este es el mapa para el origen
 
             RegistrarOrigenConductorMarker (
@@ -186,16 +197,18 @@ fun NavGraph(
                 dia,
                 horao,
                 horad,
-                ubicacionMarker
+                ubicacionMarker,
+                lugares
             )
 
         }
-        composable( "registrar_destino_conductor_marker/{userid}/{dia}/{horao}/{horad}/{umarker}"){
+        composable( "registrar_destino_conductor_marker/{userid}/{dia}/{horao}/{horad}/{umarker}/{numlugares}"){
             val userID= it.arguments?.getString("userid")?:""
             val dia=it.arguments?.getString("dia")?:""
             val horao=it.arguments?.getString("horao")?:""
             val horad=it.arguments?.getString("horad")?:""
             val ubicacionMarker=it.arguments?.getString("umarker")?:""
+            val lugares=it.arguments?.getString("numlugares")?:""
 //Este es el mapa para el origen
             RegistrarDestinoConductorMarker (
                 navController = navController,
@@ -203,24 +216,27 @@ fun NavGraph(
                 dia,
                 horao,
                 horad,
-                ubicacionMarker
+                ubicacionMarker,
+                lugares
             )
 
         }
 
         /*Pantalla con el mapa para registrar con la barra el punto de llegada*/
-        composable( "registrar_destino_conductor/{userid}/{dia}/{hora}/{horad}"){
+        composable( "registrar_destino_conductor/{userid}/{dia}/{hora}/{horad}/{numlugares}"){
             val userID= it.arguments?.getString("userid")?:""
             val dia=it.arguments?.getString("dia")?:""
             val hora=it.arguments?.getString("hora")?:""
             val horad=it.arguments?.getString("horad")?:""
+            val lugares=it.arguments?.getString("numlugares")?:""
 //Este es el mapa para el origen
             RegistrarDestinoConductor (
                 navController = navController,
                 userID,
                 dia,
                 hora,
-                horad
+                horad,
+                lugares
             )
 
         }
@@ -402,7 +418,8 @@ fun NavGraph(
 
         composable( "ver_itinerario_conductor/{userid}"){
             val userID= it.arguments?.getString("userid")?:""
-            ObtenerItinerarioConductor(
+
+             ObtenerItinerarioConductor(
                 navController = navController,
                 userID
             )
@@ -453,10 +470,38 @@ val pantalla=it.arguments?.getString("pantalla")?:""
         ) {
             val correo= it.arguments?.getString("correo")?:""
 
+            HomeHorarioPasajero(navController = navController, correo =correo )
 
             //Consulta a ConsultasBD
+            /*ObtenerItinerarioPasajero(navController = navController, userId =
+            correo)*/
+        }
+
+        composable( "ver_itinerario_pasajero_con/{correo}"
+        ) {
+            val correo= it.arguments?.getString("correo")?:""
+            val tipo="c"
+            //Consulta a ConsultasBD
             ObtenerItinerarioPasajero(navController = navController, userId =
-            correo)
+            correo,tipo)
+        }
+
+        composable( "ver_itinerario_pasajero_pen/{correo}"
+        ) {
+            val correo= it.arguments?.getString("correo")?:""
+val tipo="p"
+            //Consulta a ConsultasBD
+            ObtenerItinerarioPasajero(navController = navController, userId =
+            correo, tipo)
+        }
+
+        composable( "ver_itinerario_pasajero_sin/{correo}"
+        ) {
+            val correo= it.arguments?.getString("correo")?:""
+            val tipo="s"
+            //Consulta a ConsultasBD
+            ObtenerItinerarioPasajero(navController = navController, userId =
+            correo, tipo)
         }
         //15/12/2023
         composable( "ver_solicitudes_conductor/{correo}"
@@ -474,6 +519,32 @@ val pantalla=it.arguments?.getString("pantalla")?:""
             ObtenerPasajerosConductor(navController = navController, userId =
             correo)
         }
+
+        //--------------------------------REPORTAR USUARIO--------------
+        composable( "reportar_pasajero/{usuario}/{userid}"
+        ) {
+            val userID= it.arguments?.getString("userid")?:""
+            val usuarioPas= it.arguments?.getString("usuario")?:""
+            ReportarPasajeros_Con(
+                navController = navController,
+                usuarioPas,
+                userID,
+            )
+        }
+
+        //--------------------------------REPORTAR IMPREVISTO--------------
+        composable( "reportar_imprevisto/{usuario}/{userid}/{viajeid}"
+        ) {
+            val userID= it.arguments?.getString("userid")?:""
+            val usuarioPas= it.arguments?.getString("usuario")?:""
+            val viajeID= it.arguments?.getString("viajeid")?:""
+            ReportarImprevisto_Con(
+                navController = navController,
+                usuarioPas,
+                userID,
+                viajeID,
+                )
+            }
 
 
     }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ButtonDefaults
@@ -34,6 +35,7 @@ import com.example.curdfirestore.NivelAplicacion.convertCoordinatesToAddress
 import com.example.curdfirestore.NivelAplicacion.convertirStringALatLng
 import com.example.curdfirestore.NivelAplicacion.HorarioData
 import com.example.curdfirestore.NivelAplicacion.ParadaData
+import com.example.curdfirestore.NivelAplicacion.Pasajeros.RegistraSolicitudHorario
 import com.example.curdfirestore.NivelAplicacion.SolicitudData
 import com.google.android.gms.maps.model.LatLng
 
@@ -173,6 +175,8 @@ fun VentanaMarker(
 ) {
 
     var boton by remember { mutableStateOf(false) }
+    var confirm by remember { mutableStateOf(false) }
+    var enviado by remember { mutableStateOf(false) }
 
     var ejecutado by remember { mutableStateOf(false) }
     if (show) {
@@ -180,17 +184,7 @@ fun VentanaMarker(
             Column(modifier = Modifier
                 .background(Color.White)
                 .padding(10.dp)) {
-                Text(
-                    text = "Información de la parada",
-                    modifier = Modifier.padding(2.dp),
 
-                    style = TextStyle(
-                        Color(137, 13, 88),
-                        fontSize = 18.sp
-                    ),
-                    textAlign = TextAlign.Center
-
-                )
 
                 var markerLatO by remember { mutableStateOf(0.0) }
                 var markerLonO by remember { mutableStateOf(0.0) }
@@ -209,31 +203,34 @@ fun VentanaMarker(
                 val addressP = convertCoordinatesToAddress(LatLng(markerLatO, markerLonO))
 
 
-                TextInMarker(Label = "Nombre: ", Text = parada.par_nombre)
-                if (horario.horario_trayecto=="0"){
-                    TextInMarker(Label = "Trayecto: ", Text = "UPIITA como origen" )
-                }
-                else{
-                    TextInMarker(Label = "Trayecto: ", Text = "UPIITA como destino" )
-                }
+                if (parada.par_nombre == "Origen") {
 
-                TextInMarker(Label = "Ubicación: ", Text = addressP)
-                TextInMarker(Label = "Hora aproximada: ", Text = parada.par_hora)
+                    Text(
+                        text = "Punto de partida",
+                        modifier = Modifier.padding(2.dp),
 
+                        style = TextStyle(
+                            Color(137, 13, 88),
+                            fontSize = 18.sp
+                        ),
+                        textAlign = TextAlign.Center
 
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                    )
+                    if (horario.horario_trayecto == "0") {
+                        TextInMarker(Label ="Dirección: ", Text = addressP)
+                        TextInMarker(Label ="Hora de salida: ", Text = "${parada.par_hora} hrs")
 
+                    } else {
+                        TextInMarker(Label ="Dirección: ", Text = addressP)
+                        TextInMarker(Label ="Hora de llegada: ", Text = "${parada.par_hora} hrs")
 
-
-                    // Primer botón para "Ver viaje"
-
+                    }
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.Center
                     ) {
                         androidx.compose.material.Button(
                             colors = ButtonDefaults.buttonColors(
@@ -254,86 +251,274 @@ fun VentanaMarker(
                                 )
                             )
                         }
+                    }
 
+                } else if (parada.par_nombre == "Destino") {
+
+                    Text(
+                        text = "Punto de llegada",
+                        modifier = Modifier.padding(2.dp),
+
+                        style = TextStyle(
+                            Color(137, 13, 88),
+                            fontSize = 18.sp
+                        ),
+                        textAlign = TextAlign.Center
+
+                    )
+
+                    if (horario.horario_trayecto == "0") {
+                        TextInMarker(Label ="Dirección: ", Text = addressP)
+                        TextInMarker(Label ="Horar de salida: ", Text = "${parada.par_hora} hrs")
+
+                    } else {
+                        TextInMarker(Label ="Dirección: ", Text = addressP)
+                        TextInMarker(Label ="Hora de llegada: ", Text = "${parada.par_hora} hrs")
+
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         androidx.compose.material.Button(
                             colors = ButtonDefaults.buttonColors(
                                 backgroundColor = Color(
-                                    137,
-                                    13,
-                                    88
+                                    233,
+                                    168,
+                                    219
                                 )
                             ),
                             onClick = {
-                                //Guardar en la bd
-                                boton=true
-                              //  onDismiss()
-
-
-
-                               // navController.navigate("home_viaje_pasajero/$email")
-
+                                // Cerrar el diálogo cuando se hace clic en "Cerrar"
+                                onDismiss()
                             }) {
                             androidx.compose.material.Text(
-                                text = "Solicitar", style = TextStyle(
+                                text = "Cerrar", style = TextStyle(
                                     fontSize = 15.sp,
                                     color = Color.White
                                 )
                             )
                         }
+                    }
+
+                } else {
+
+                    //---
+                    Text(
+                        text = "Información de la parada",
+                        modifier = Modifier.padding(2.dp),
+
+                        style = TextStyle(
+                            Color(137, 13, 88),
+                            fontSize = 18.sp
+                        ),
+                        textAlign = TextAlign.Center
+
+                    )
+
+
+
+                    if (enviado == false) {
+
+                        TextInMarker(Label = "Parada: ", Text = parada.par_nombre)
+                        if (horario.horario_trayecto == "0") {
+                            TextInMarker(Label = "Origen: ", Text = "UPIITA-IPN")
+                            TextInMarker(Label ="Destino: ", Text = addressP)
+                            TextInMarker(Label ="Horario aproximado: ", Text = "${parada.par_hora} hrs")
+
+                        } else {
+                            TextInMarker(Label ="Origen: ", Text = addressP)
+                            TextInMarker(Label = "Destino: ", Text = "UPIITA-IPN")
+                            TextInMarker(Label ="Horario aproximado: ", Text = "${parada.par_hora} hrs")
+
+                        }
+
+
+
+
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
+
+                            // Primer botón para "Ver viaje"
+
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                androidx.compose.material.Button(
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color(
+                                            233,
+                                            168,
+                                            219
+                                        )
+                                    ),
+                                    onClick = {
+                                        // Cerrar el diálogo cuando se hace clic en "Cerrar"
+                                        onDismiss()
+                                    }) {
+                                    androidx.compose.material.Text(
+                                        text = "Cerrar", style = TextStyle(
+                                            fontSize = 15.sp,
+                                            color = Color.White
+                                        )
+                                    )
+                                }
+
+                                androidx.compose.material.Button(
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color(
+                                            137,
+                                            13,
+                                            88
+                                        )
+                                    ),
+                                    onClick = {
+                                        //Guardar en la bd
+                                        boton = true
+                                        //  onDismiss()
+
+
+                                        // navController.navigate("home_viaje_pasajero/$email")
+
+                                    }) {
+                                    androidx.compose.material.Text(
+                                        text = "Solicitar", style = TextStyle(
+                                            fontSize = 15.sp,
+                                            color = Color.White
+                                        )
+                                    )
+                                }
+
+                            }
+                        }
+
+                    } else {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+
+
+                            Text(
+                                text = "Tu solicitud ha sido enviada. Te avisaremos cuando el conductor la acepte",
+                                modifier = Modifier.padding(2.dp),
+
+                                style = TextStyle(
+                                    Color.Black,
+                                    fontSize = 15.sp
+                                ),
+                                textAlign = TextAlign.Center
+
+
+                            )
+
+
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                androidx.compose.material.Button(
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color(
+                                            233,
+                                            168,
+                                            219
+                                        )
+                                    ),
+                                    onClick = {
+                                        // Cerrar el diálogo cuando se hace clic en "Cerrar"
+                                        navController.navigate(route = "ver_itinerario_pasajero/$email")
+
+                                    }) {
+                                    androidx.compose.material.Text(
+                                        text = "Cerrar", style = TextStyle(
+                                            fontSize = 15.sp,
+                                            color = Color.White
+                                        )
+                                    )
+                                }
+                            }
+
+                        }
 
                     }
 
+
                 }
             }
+            //--
         }
     }
 
     if (boton==true && ejecutado==false){
         val fecha_now= obtenerFechaEnFormato().toString()
 
+
         val solicitudData = SolicitudData(
-viaje_id = parada.viaje_id,
+            viaje_id = parada.viaje_id,
             horario_id = horarioId,
             conductor_id =parada.user_id ,
             pasajero_id=email,
             parada_id = parada.par_id,
             horario_trayecto = horario.horario_trayecto,
             solicitud_status = "Pendiente",
-            solicitud_date = fecha_now
+            solicitud_date = fecha_now,
+
         )
 
 
-        GuardarSolicitud(navController, email, solicitudData)
+        GuardarSolicitud(navController, email, solicitudData,horarioId ) //Registra la solicitud en la BD
+        RegistraSolicitudHorario(navController = navController, userId = email, horarioId =horarioId , status = "Si") //Actauliza horario_solicitud
         //GuardarCoordenadas(navController, userid,viajeData)
         ejecutado=true
+        enviado=true
+
     }
+
+
 }
 
 
 
 @Composable
-fun VentanaSolicitudEnviada(
-    navController: NavController,
-    email:String,
+fun VentanaPreviaParadas(
     show: Boolean,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
     if (show) {
+
+
         Dialog(onDismissRequest = { onDismiss() }) {
             Column(modifier = Modifier
                 .background(Color.White)
                 .padding(10.dp)) {
                 Text(
-                    text = "Solicitud",
+                    text = "¡Tu viaje obtuvo resultados!",
                     modifier = Modifier.padding(2.dp),
                     style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 15.sp
-                    )
+                        Color(137, 13, 88),
+                        fontSize = 18.sp
+                    ),
+                    textAlign = TextAlign.Center
+
                 )
+
                 Text(
-                    text = "Se ha enviado tu solicitud, te avisaremos cuando sea aceptada",
+                    text = "Te mostramos las paradas cercanas. Puedes seleccionar alguna y solicitarla",
                     modifier = Modifier
                         .padding(2.dp),
                     style = TextStyle(
@@ -360,7 +545,7 @@ fun VentanaSolicitudEnviada(
                     // Primer botón para "Ver viaje"
                     TextButton(onClick = {
                         onDismiss()
-                    //  navController.navigate("ver_itinerario_pasajero/$email")
+                     //navController.navigate("ver_itinerario_pasajero/$email")
                     }) {
                         Text(text = "Aceptar")
                     }

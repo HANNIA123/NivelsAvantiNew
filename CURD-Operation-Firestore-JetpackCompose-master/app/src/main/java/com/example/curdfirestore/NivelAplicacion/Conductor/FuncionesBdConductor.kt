@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import com.example.curdfirestore.NivelAplicacion.ApiService
 import com.example.curdfirestore.NivelAplicacion.BASE_URL
+import com.example.curdfirestore.NivelAplicacion.ImprevistoData
 import com.example.curdfirestore.NivelAplicacion.RespuestaApi
 import com.example.curdfirestore.NivelAplicacion.RetrofitClient
 
@@ -22,6 +23,7 @@ import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.Solicit
 import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.Solicitudes.VentanaSolicitudAceptada
 import com.example.curdfirestore.NivelPresentacion.PresentacionConductor.Solicitudes.VentanaSolicitudRechazada
 import com.example.curdfirestore.NivelAplicacion.ParadaData
+import com.example.curdfirestore.NivelAplicacion.ReporteData
 import com.example.curdfirestore.NivelAplicacion.SolicitudData
 import com.example.curdfirestore.NivelAplicacion.ViajeData
 import com.example.curdfirestore.NivelAplicacion.ViajeDataReturn
@@ -74,7 +76,7 @@ fun ObtenerViajeRegistrado(
     }
     // Construir la interfaz de usuario utilizando el estado actualizado
     if (viaje != null && paradas !=null) {
-        F_VerViajeConductor(navController,correo, viaje!!, paradas!!, pantalla) //Pantalla de home
+        F_VerViajeConductor(navController,correo, viaje!!, paradas!!, pantalla, viajeId) //Pantalla de home
     }
 }
 
@@ -322,4 +324,70 @@ fun ObtenerPasajerosConductor(
         VentanaNoSolicitudes(navController, userId,show,{show=false }, {})
 
     }
+}
+//Agregado 17/12/2023
+@Composable
+fun GuardarReporte(
+    navController: NavController,
+    reporteData: ReporteData
+){
+    var resp by remember { mutableStateOf("") }
+
+    val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create()).build()
+    val apiService = retrofit.create(ApiService::class.java)
+    val call: Call<RespuestaApi> = apiService.enviarReporte(reporteData)
+    call.enqueue(object : Callback<RespuestaApi> {
+        override fun onResponse(call: Call<RespuestaApi>, response: Response<RespuestaApi>) {
+            if (response.isSuccessful) {
+                // Manejar la respuesta exitosa aquí
+                val respuesta = response.body()?.message ?: "Mensaje nulo"
+
+                resp=respuesta
+
+            } else {
+                resp="Entro al else"
+            }
+        }
+        override fun onFailure(call: Call<RespuestaApi>, t: Throwable) {
+            TODO("Not yet implemented")
+        }
+    }
+    )
+
+}
+
+
+//Agregado 18/12/2023
+@Composable
+fun GuardarImprevisto(
+    navController: NavController,
+    imprevistoData: ImprevistoData
+){
+    var resp by remember { mutableStateOf("") }
+
+    val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create()).build()
+    val apiService = retrofit.create(ApiService::class.java)
+    val call: Call<RespuestaApi> = apiService.enviarImprevisto(imprevistoData)
+    call.enqueue(object : Callback<RespuestaApi> {
+        override fun onResponse(call: Call<RespuestaApi>, response: Response<RespuestaApi>) {
+            if (response.isSuccessful) {
+                // Manejar la respuesta exitosa aquí
+                val respuesta = response.body()?.message ?: "Mensaje nulo"
+
+                resp=respuesta
+
+            } else {
+                resp="Entro al else"
+            }
+        }
+        override fun onFailure(call: Call<RespuestaApi>, t: Throwable) {
+            TODO("Not yet implemented")
+        }
+        }
+        )
+
 }

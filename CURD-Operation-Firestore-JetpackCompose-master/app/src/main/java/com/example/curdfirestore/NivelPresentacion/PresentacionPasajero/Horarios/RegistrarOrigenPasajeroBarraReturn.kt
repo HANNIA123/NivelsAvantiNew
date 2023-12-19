@@ -291,7 +291,8 @@ fun RegistrarOrigenPasajeroReturn(
             horario_hora=horao,
             horario_destino=destino,
             horario_origen=ubicacion,
-            horario_trayecto = "1"
+            horario_trayecto = "1",
+            horario_solicitud = "No"
         )
 
         GuardarHorario(navController, userid, horarioData)

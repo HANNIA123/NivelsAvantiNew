@@ -268,7 +268,8 @@ boton=true
             horario_hora=horao,
             horario_destino=ubicacion,
             horario_origen=origen,
-            horario_trayecto = "0"
+            horario_trayecto = "0",
+            horario_solicitud = "No"
         )
 
 

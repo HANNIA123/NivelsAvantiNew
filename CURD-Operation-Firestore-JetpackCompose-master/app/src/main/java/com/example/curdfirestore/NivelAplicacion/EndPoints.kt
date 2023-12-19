@@ -51,16 +51,33 @@ interface ApiService {
     suspend fun obtenerSolicitudesCon(@Path("id") userId: String): Response<List<SolicitudData>> // Obtener una lista de solicitudes con el id dado
     @GET("/api/obtenerparada/{id}")
     suspend fun obtenerParada(@Path("id") paradaId: String): ParadaData
+    //Agregado 16/12/2023
+    @GET("/api/solicitudesparada/{id}")
+    suspend fun obtenerSolicitudesParada(@Path("id") paradaId: String): Response<List<SolicitudData>> // Obtener una lista de solicitudes con el id dado
+
+
 
     //Modificar status de la solicitud
     @PUT("/api/modificarstatussolicitud/{id}/{status}")
     fun modificarStatusSoli(@Path("id") viajeId: String, @Path("status") status: String): Call<RespuestaApi>
 
+    @PUT("/api/modificarsolicitudhorario/{id}/{status}")
+    fun modificarStatusSoliHorario(@Path("id") horarioId: String, @Path("status") status: String): Call<RespuestaApi>
+
+    @GET("/api/consultasolicitudes/{iduser}/{idhorario}/{status}")
+    suspend fun obtenerItiSolicitudesPas(@Path("iduser") userId: String,@Path("idhorario") horaId: String, @Path("status") status: String
+    ): List<SolicitudData>
+
+    //Agregado 17/12/2023
+    @POST("/api/registrarreporte") // Reemplaza con la ruta de tu endpoint
+    fun enviarReporte(@Body reporteData: ReporteData): Call<RespuestaApi>
+
+    //Agregado 18/12/2023
+    @POST("/api/registrarimprevisto") // Reemplaza con la ruta de tu endpoint
+    fun enviarImprevisto(@Body imprevistoData: ImprevistoData): Call<RespuestaApi>
+    // Obtener una lista de viajes par
+
 //---------------
 
-    @PUT("/api/usuario/{id}")
-    fun modificarUsuario(@Path("id") usuarioId: String, @Body datosModificados: Viaje): Call<RespuestaApi>
-    @DELETE("/api/usuario/{id}")
-    fun eliminarUsuario(@Path("id") usuarioId: String): Call<RespuestaApi>
 
 }
